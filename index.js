@@ -10,8 +10,7 @@ var app = express();
 var cors = require('cors');
 app.use(cors({optionsSuccessStatus: 200}));  // some legacy browsers choke on 204
 
-// http://expressjs.com/en/starter/static-files.html
-app.use(express.static('public'));
+
 
 // http://expressjs.com/en/starter/basic-routing.html
 app.get("/", function (req, res) {
@@ -24,7 +23,26 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
+app.get('/api/:date?', (req, res) => {
+  console.log(req.params.date)
+  let dateParam = req.params.date;
 
+  // If no date, use current date
+  let date = dateParam ? new Date(isNaN(dateParam) ? dateParam : parseInt(dateParam)) : new Date();
+
+  // Check date validation
+  if (isNaN(date.getTime())) {
+      return res.json({ error: "Invalid Date" });
+  }
+
+  res.json({
+      unix: date.getTime(),
+      utc: date.toUTCString()
+  });
+})
+
+// http://expressjs.com/en/starter/static-files.html
+app.use(express.static('public'));
 
 // Listen on port set in environment variable or default to 3000
 var listener = app.listen(process.env.PORT || 3000, function () {
